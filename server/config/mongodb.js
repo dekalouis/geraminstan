@@ -2,20 +2,20 @@ import { MongoClient } from "mongodb";
 
 const uri =
   "mongodb+srv://dekalouisrebaudo:c6sTSHzKM9nvrtxH@cluster0.gpcex.mongodb.net/";
+export const client = new MongoClient(uri);
+let db = null;
 
-const client = new MongoClient(uri);
-
-async function run() {
+function connect() {
   try {
-    const database = client.db("gc01");
-    const coll = database.collection("users");
-
-    const users = await coll.find().toArray();
-
-    console.log(users);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    const db = client.db("gc01");
+  } catch (err) {
+    console.log(err);
   }
 }
-run().catch(console.dir);
+
+export function getDb() {
+  if (!db) {
+    connect();
+  }
+  return db;
+}

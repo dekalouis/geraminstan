@@ -1,23 +1,6 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
-const users = [
-  {
-    id: 1,
-    name: "Deka",
-    username: "bezitoz",
-    email: "deka@mail.com",
-    password: "testing",
-  },
-  {
-    id: 2,
-    name: "Putri",
-    username: "pqcs",
-    email: "putri@mail.com",
-    password: "testing",
-  },
-];
-
 const typeDefs = `#graphql
   type User {
     id: ID
