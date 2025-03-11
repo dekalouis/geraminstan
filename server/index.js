@@ -1,3 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+// console.log(
+//   "Environment loaded. MongoDB URI exists:",
+//   !!process.env.MONGODB_URI
+// );
+
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import {

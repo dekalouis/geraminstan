@@ -21,7 +21,7 @@ input LoginInput {
     password: String
   }
 
-input UserRegister {
+input RegisterInput {
     name: String
     email: String
     username: String
@@ -29,27 +29,17 @@ input UserRegister {
   }
 
 type Query {
-    users: [User]
-    user(id: ID): User
     login(payload: LoginInput): String
   }
 
 type Mutation {
-    register(payload: UserRegister): String
+    register(payload: RegisterInput): String
   }
 
  `;
 
 export const resolvers = {
   Query: {
-    users: async function () {
-      const users = await User.findAll();
-      return users;
-    },
-    user: async function (_, args) {
-      const user = await User.findById(args.id);
-      return user;
-    },
     login: async function (_, args) {
       const { payload } = args;
       const token = await User.login(payload);
