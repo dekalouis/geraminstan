@@ -37,20 +37,30 @@ input RegisterInput {
   }
 
 type Query {
+    users: [User]
     login(payload: LoginInput): String
     searchUsers(searchTerm: String!): [User]
-    
+    followers(userId: ID!): [User]
+  following(userId: ID!): [User]
+
 
   }
 
 type Mutation {
     register(payload: RegisterInput): String
+    followUser(followerId: ID!, followingId: ID!): Follow
+  unfollowUser(followerId: ID!, followingId: ID!): Boolean
+
   }
 
  `;
 
 export const resolvers = {
   Query: {
+    users: async function () {
+      const users = await User.findAll();
+      return users;
+    },
     login: async function (_, args) {
       const { payload } = args;
       const token = await User.login(payload);
@@ -59,6 +69,12 @@ export const resolvers = {
     },
     searchUsers: async function (_, { searchTerm }) {
       return await User.searchUsers(searchTerm);
+    },
+    followers: async function (_, { userId }) {
+      return await User.getFollowers(userId);
+    },
+    following: async function (_, { userId }) {
+      return await User.getFollowing(userId);
     },
   },
 
@@ -69,5 +85,11 @@ export const resolvers = {
 
       return message;
     },
+    followUser: async function (_, { followerId, followingId }) {
+      return await User.followUser(followerId, followingId);
+    },
+    // unfollowUser: async function (_, { followerId, followingId }) {
+    //   return await User.unfollowUser(followerId, followingId);
+    // },
   },
 };
