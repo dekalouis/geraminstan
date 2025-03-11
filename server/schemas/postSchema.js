@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import Post from "../models/post.js";
 
 /*
 posts: [Post]
@@ -13,16 +13,8 @@ type User {
  username: String!
  email: String!
  password: String!
+ 
 }
-
-type Follow {
-  _id: ID!
-  followerId: ID!
-  followingId: ID!
-  createdAt: String
-  updatedAt: String
-}
-
 
 input LoginInput {
     email: String
@@ -38,9 +30,6 @@ input RegisterInput {
 
 type Query {
     login(payload: LoginInput): String
-    searchUsers(searchTerm: String!): [User]
-    
-
   }
 
 type Mutation {
@@ -57,11 +46,7 @@ export const resolvers = {
 
       return token;
     },
-    searchUsers: async function (_, { searchTerm }) {
-      return await User.searchUsers(searchTerm);
-    },
   },
-
   Mutation: {
     register: async function (_, args) {
       const { payload } = args;

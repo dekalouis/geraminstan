@@ -9,6 +9,12 @@ export default class User {
     return collection;
   }
 
+  static getFollowCollection() {
+    const db = getDb();
+    const collection = db.collection("follows");
+    return collection;
+  }
+
   static async login(payload) {
     const { email, password } = payload;
     const collection = this.getCollection();
@@ -20,7 +26,6 @@ export default class User {
     if (!isValid) throw new Error("Invalid email/password");
 
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
-
     return token;
   }
 
@@ -39,5 +44,64 @@ export default class User {
     });
 
     return "Successfully registered!";
+  }
+
+  static async searchUsers(searchTerm) {
+    if (!searchTerm || searchTerm.trim() === "") {
+      return [];
+    }
+
+    const collection = this.getCollection();
+
+    const pattern = new RegExp(searchTerm, "i");
+    const users = await collection
+      .find({
+        $or: [{ name: pattern }, { username: pattern }],
+      })
+      .toArray();
+
+    return users;
+  }
+
+  static async followUser(followerId, followingId) {
+    const userCollection = this.getCollection();
+
+    //check ada ga
+    const follower = await userCollection.findOne({
+      _id: new ObjectId(followerId),
+    });
+    const following = await userCollection.findOne({
+      _id: new ObjectId(followingId),
+    });
+
+    if (!follower) throw new Error("Follower user not found");
+    if (!following) throw new Error("User to follow not found");
+
+    //Check udh difollow belum
+    const followCollection = this.getFollowCollection();
+    const existingFollow = await followCollection.findOne({
+      followerId: followerObjId,
+      followingId: followingObjId,
+    });
+    //CHECK DULU
+    console.log(existingFollow);
+
+    // if (existingFollow) {
+    //   throw new Error("Already following this user");
+    // }
+
+    // const followData = {
+    //   followerId: follower._id,
+    //   followingId: following._id,
+    //   createdAt: new Date(),
+    //   updatedAt: new Date()
+    // };
+
+    // const result = await followCollection.insertOne(followData);
+
+    // return {
+    //   _id: result.insertedId,
+    //   ...followData
+    // };
   }
 }
