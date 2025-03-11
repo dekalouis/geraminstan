@@ -20,9 +20,9 @@ Buatlah Aplikasi server GraphQL dengan menggunakan Apollo Server yang memiliki f
 - [ ] Get Post (Query)
 - [ ] Add Post (Mutation)
 - [ ] Comment Post (Mutation)
-- [ ] Search User (Query)
-- [ ] Follow (Mutation)
-- [ ] Get User (Query)
+- [x] Search User (Query)
+- [x] Follow (Mutation)
+- [x] Get User (Query)
 - [ ] Like Post (Mutation)
 
 ### MongoDB 1

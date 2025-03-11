@@ -116,11 +116,9 @@ export default class User {
   //! static async unfollowUser(followerId, followingId) {
   //   const followCollection = this.getFollowCollection();
 
-  //   // Convert string IDs to ObjectId
   //   const followerObjId = new ObjectId(followerId);
   //   const followingObjId = new ObjectId(followingId);
 
-  //   // Delete the follow relationship
   //   const result = await followCollection.deleteOne({
   //     followerId: followerObjId,
   //     followingId: followingObjId,
@@ -133,14 +131,12 @@ export default class User {
     const followCollection = this.getFollowCollection();
     const userCollection = this.getCollection();
 
-    // Find all follows where this user is being followed
     const follows = await followCollection
       .find({
         followingId: new ObjectId(userId),
       })
       .toArray();
 
-    // Get the actual user objects for all followers
     const followerIds = follows.map((follow) => follow.followerId);
     const followers = await userCollection
       .find({
@@ -155,14 +151,12 @@ export default class User {
     const followCollection = this.getFollowCollection();
     const userCollection = this.getCollection();
 
-    // Find all follows where this user is following others
     const follows = await followCollection
       .find({
         followerId: new ObjectId(userId),
       })
       .toArray();
 
-    // Get the actual user objects being followed
     const followingIds = follows.map((follow) => follow.followingId);
     const following = await userCollection
       .find({
