@@ -1,32 +1,13 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-
-const typeDefs = `#graphql
-  type User {
-    id: ID
-    name: String
-    username: String
-    email: String
-    password: String
-}
-    type Query {
-        users: [User]
-        user(id: ID): User
-    }
-`;
-
-const resolvers = {
-  Query: {
-    users: () => users,
-    user: (_, args) => {
-      return users.find((user) => user.id === +args.id);
-    },
-  },
-};
+import {
+  resolvers as userResolvers,
+  typeDefs as userTypeDefs,
+} from "./schemas/userSchema.js";
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  typeDefs: [userTypeDefs],
+  resolvers: [userResolvers],
 });
 
 const { url } = await startStandaloneServer(server, {

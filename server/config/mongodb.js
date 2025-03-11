@@ -7,7 +7,7 @@ let db = null;
 
 function connect() {
   try {
-    const db = client.db("gc01");
+    db = client.db("gc01");
   } catch (err) {
     console.log(err);
   }
