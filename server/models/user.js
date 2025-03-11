@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { getDb } from "../config/mongodb.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -7,6 +8,18 @@ export default class User {
     const db = getDb();
     const collection = db.collection("users");
     return collection;
+  }
+
+  static getFollowCollection() {
+    const db = getDb();
+    const collection = db.collection("follows");
+    return collection;
+  }
+
+  static async findAll() {
+    const collection = this.getCollection();
+    const users = await collection.find().toArray();
+    return users;
   }
 
   static async login(payload) {
@@ -20,7 +33,6 @@ export default class User {
     if (!isValid) throw new Error("Invalid email/password");
 
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
-
     return token;
   }
 
@@ -39,5 +51,125 @@ export default class User {
     });
 
     return "Successfully registered!";
+  }
+
+  static async searchUsers(searchTerm) {
+    if (!searchTerm || searchTerm.trim() === "") {
+      return [];
+    }
+
+    const collection = this.getCollection();
+
+    const pattern = new RegExp(searchTerm, "i");
+    const users = await collection
+      .find({
+        $or: [{ name: pattern }, { username: pattern }],
+      })
+      .toArray();
+
+    return users;
+  }
+
+  static async followUser(followerId, followingId) {
+    const userCollection = this.getCollection();
+
+    //check ada ga
+    const follower = await userCollection.findOne({
+      _id: new ObjectId(followerId),
+    });
+    const following = await userCollection.findOne({
+      _id: new ObjectId(followingId),
+    });
+
+    if (!follower) throw new Error("Follower user not found");
+    if (!following) throw new Error("User to follow not found");
+
+    //Check udh difollow belum
+    const followCollection = this.getFollowCollection();
+    const existingFollow = await followCollection.findOne({
+      followerId: follower._id,
+      followingId: following._id,
+    });
+    //CHECK DULU
+    // console.log(existingFollow);
+
+    if (existingFollow) {
+      throw new Error("Already following this user");
+    }
+
+    const followData = {
+      followerId: follower._id,
+      followingId: following._id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const result = await followCollection.insertOne(followData);
+
+    return {
+      message: `User ${follower.name}Successfully followed user ${following.name}`,
+      _id: result.insertedId,
+      ...followData,
+    };
+  }
+
+  //! static async unfollowUser(followerId, followingId) {
+  //   const followCollection = this.getFollowCollection();
+
+  //   // Convert string IDs to ObjectId
+  //   const followerObjId = new ObjectId(followerId);
+  //   const followingObjId = new ObjectId(followingId);
+
+  //   // Delete the follow relationship
+  //   const result = await followCollection.deleteOne({
+  //     followerId: followerObjId,
+  //     followingId: followingObjId,
+  //   });
+
+  //   return result.deletedCount > 0;
+  // }
+
+  static async getFollowers(userId) {
+    const followCollection = this.getFollowCollection();
+    const userCollection = this.getCollection();
+
+    // Find all follows where this user is being followed
+    const follows = await followCollection
+      .find({
+        followingId: new ObjectId(userId),
+      })
+      .toArray();
+
+    // Get the actual user objects for all followers
+    const followerIds = follows.map((follow) => follow.followerId);
+    const followers = await userCollection
+      .find({
+        _id: { $in: followerIds },
+      })
+      .toArray();
+
+    return followers;
+  }
+
+  static async getFollowing(userId) {
+    const followCollection = this.getFollowCollection();
+    const userCollection = this.getCollection();
+
+    // Find all follows where this user is following others
+    const follows = await followCollection
+      .find({
+        followerId: new ObjectId(userId),
+      })
+      .toArray();
+
+    // Get the actual user objects being followed
+    const followingIds = follows.map((follow) => follow.followingId);
+    const following = await userCollection
+      .find({
+        _id: { $in: followingIds },
+      })
+      .toArray();
+
+    return following;
   }
 }
