@@ -9,20 +9,6 @@ export default class User {
     return collection;
   }
 
-  static async findAll() {
-    const collection = this.getCollection();
-    const users = await collection.find().toArray();
-
-    return users;
-  }
-
-  static async findById(id) {
-    const collection = this.getCollection();
-    const user = await collection.findOne({ _id: new ObjectId(id) });
-
-    return user;
-  }
-
   static async login(payload) {
     const { email, password } = payload;
     const collection = this.getCollection();
@@ -33,7 +19,7 @@ export default class User {
     const isValid = bcrypt.compareSync(password, user.password);
     if (!isValid) throw new Error("Invalid email/password");
 
-    const token = jwt.sign({ _id: user._id }, "rahasia");
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
 
     return token;
   }
@@ -52,6 +38,6 @@ export default class User {
       password: hash,
     });
 
-    return "Register berhasil";
+    return "Successfully registered!";
   }
 }

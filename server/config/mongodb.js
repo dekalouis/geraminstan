@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { MongoClient } from "mongodb";
 
-const uri =
-  "mongodb+srv://dekalouisrebaudo:c6sTSHzKM9nvrtxH@cluster0.gpcex.mongodb.net/";
+const uri = process.env.MONGODB_URI;
+// console.log(uri);
+
 export const client = new MongoClient(uri);
 let db = null;
 

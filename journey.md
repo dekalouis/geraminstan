@@ -15,8 +15,8 @@ Silahkan setup project aplikasi server kamu:
 
 Buatlah Aplikasi server GraphQL dengan menggunakan Apollo Server yang memiliki fungsi sebagai berikut:
 
-- [ ] Register (Mutation)
-- [ ] Login (Query)
+- [x] Register (Mutation)
+- [x] Login (Query)
 - [ ] Get Post (Query)
 - [ ] Add Post (Mutation)
 - [ ] Comment Post (Mutation)
