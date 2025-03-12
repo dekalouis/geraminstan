@@ -27,6 +27,7 @@ export default class Post {
 
     const { content, authorId, tags = [], imgUrl = "" } = postData;
 
+    //TODO VALIDATIONNYA JANGAN LUPA
     const newPost = {
       content,
       tags,
@@ -63,6 +64,7 @@ export default class Post {
           $unwind: "$author",
         },
         {
+          //gaperlu gini bang
           $project: {
             _id: 1,
             content: 1,
@@ -161,6 +163,7 @@ export default class Post {
     return comment;
   }
 
+  //TODO LIKE BY USERNAME BUKAN ID
   static async likePost(postId, userId) {
     const collection = this.getCollection();
 
@@ -197,7 +200,7 @@ export default class Post {
         }
       );
 
-      if (result.modifiedCount === 0) {
+      if (!result) {
         throw new Error("Post not found");
       }
 

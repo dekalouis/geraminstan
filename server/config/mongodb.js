@@ -10,7 +10,7 @@ let db = null;
 
 function connect() {
   try {
-    db = client.db("gc01");
+    db = client.db(process.env.MONGODB_DATABASE);
   } catch (err) {
     console.log(err);
   }

@@ -39,15 +39,22 @@ export default class User {
   static async register(payload) {
     const { name, email, password, username } = payload;
 
+    //* VALIDATIONNYA JANGAN LUPA
+    if (!name || !email || !password || !username) {
+      throw new Error("All fields are required");
+    }
+
     const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
+    const hashedPass = bcrypt.hashSync(password, salt);
 
     const collection = this.getCollection();
     await collection.insertOne({
       name,
       email,
       username,
-      password: hash,
+      password: hashedPass,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     return "Successfully registered!";
@@ -161,7 +168,14 @@ export default class User {
               as: "followingData",
             },
           },
-          { $project: { followers: 0, followings: 0 } },
+          {
+            $project: {
+              followers: 0,
+              followings: 0,
+              "followerData.password": 0,
+              "followingData.password": 0,
+            },
+          },
         ],
         { maxTimeMS: 60000, allowDiskUse: true }
       )
