@@ -12,10 +12,14 @@ import {
   resolvers as userResolvers,
   typeDefs as userTypeDefs,
 } from "./schemas/userSchema.js";
+import {
+  resolvers as postResolvers,
+  typeDefs as postTypeDefs,
+} from "./schemas/postSchema.js";
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs],
-  resolvers: [userResolvers],
+  typeDefs: [userTypeDefs, postTypeDefs],
+  resolvers: [userResolvers, postResolvers],
 });
 
 const { url } = await startStandaloneServer(server, {

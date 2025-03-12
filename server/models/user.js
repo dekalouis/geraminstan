@@ -107,7 +107,7 @@ export default class User {
       updatedAt: new Date(),
     };
 
-    const result = await followCollection.insertOne(followData);
+    await followCollection.insertOne(followData);
 
     return `User ${follower.name} Successfully followed user ${following.name}`;
   }
@@ -166,7 +166,7 @@ export default class User {
         { maxTimeMS: 60000, allowDiskUse: true }
       )
       .toArray();
-    console.log(user, `dari model`);
+    // console.log(user, `dari model`);
 
     return user[0];
   }

@@ -7,52 +7,87 @@ posts: [Post]
  */
 
 export const typeDefs = `#graphql
-type User {
- _id: ID!
- name: String
- username: String!
- email: String!
- password: String!
- 
-}
 
-input LoginInput {
-    email: String
-    password: String
+type Author {
+    _id: ID!
+    name: String
+    username: String!
   }
 
-input RegisterInput {
-    name: String
-    email: String
-    username: String
-    password: String
+  type Comment {
+    _id: ID!
+    content: String!
+    username: String!
+    userId: ID!
+    createdAt: String
+    updatedAt: String
+  }
+
+  type Like {
+    userId: ID!
+    createdAt: String
+    updatedAt: String
+  }
+
+type Post {
+    _id: ID!
+    content: String!
+    tags: [String]
+    imgUrl: String!
+    authorId: ID!
+    author: Author
+    comments: [Comment]
+    likes: [Like]
+    createdAt: String
+    updatedAt: String
+  }
+
+  input PostInput {
+    content: String!
+    authorId: ID!
+    tags: [String]
+    imgUrl: String
+  }
+
+  input CommentInput {
+    content: String!
+    userId: ID!
   }
 
 type Query {
-    login(payload: LoginInput): String
+    posts: [Post]
+    getPostById(id: ID!): Post
   }
 
-type Mutation {
-    register(payload: RegisterInput): String
+  type Mutation {
+    addPost(input: PostInput!): String
+    addComment(postId: ID!, input: CommentInput!): Comment
+    likePost(postId: ID!, userId: ID!): String
   }
+
+
 
  `;
 
 export const resolvers = {
   Query: {
-    login: async function (_, args) {
-      const { payload } = args;
-      const token = await User.login(payload);
-
-      return token;
+    posts: async function () {
+      return await Post.findAll();
+    },
+    getPostById: async function (_, { id }) {
+      return await Post.getPostById(id);
     },
   },
-  Mutation: {
-    register: async function (_, args) {
-      const { payload } = args;
-      const message = await User.register(payload);
 
-      return message;
+  Mutation: {
+    addPost: async function (_, { input }) {
+      return await Post.addPost(input);
+    },
+    addComment: async function (_, { postId, input }) {
+      return await Post.addComment(postId, input);
+    },
+    likePost: async function (_, { postId, userId }) {
+      return await Post.likePost(postId, userId);
     },
   },
 };
