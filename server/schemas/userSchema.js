@@ -40,8 +40,7 @@ type Query {
     users: [User]
     login(payload: LoginInput): String
     searchUsers(searchTerm: String!): [User]
-    followers(userId: ID!): [User]
-  following(userId: ID!): [User]
+
 
 
   }
@@ -49,7 +48,7 @@ type Query {
 type Mutation {
     register(payload: RegisterInput): String
     followUser(followerId: ID!, followingId: ID!): Follow
-  unfollowUser(followerId: ID!, followingId: ID!): Boolean
+
 
   }
 
@@ -70,12 +69,6 @@ export const resolvers = {
     searchUsers: async function (_, { searchTerm }) {
       return await User.searchUsers(searchTerm);
     },
-    followers: async function (_, { userId }) {
-      return await User.getFollowers(userId);
-    },
-    following: async function (_, { userId }) {
-      return await User.getFollowing(userId);
-    },
   },
 
   Mutation: {
@@ -88,8 +81,5 @@ export const resolvers = {
     followUser: async function (_, { followerId, followingId }) {
       return await User.followUser(followerId, followingId);
     },
-    // unfollowUser: async function (_, { followerId, followingId }) {
-    //   return await User.unfollowUser(followerId, followingId);
-    // },
   },
 };
