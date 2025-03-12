@@ -26,7 +26,6 @@ type Follow {
   updatedAt: String
 }
 
-
 input LoginInput {
     email: String
     password: String
