@@ -83,6 +83,9 @@ export default class User {
 
     if (!follower) throw new Error("Follower user not found");
     if (!following) throw new Error("User to follow not found");
+    if (follower._id.toString() === following._id.toString()) {
+      throw new Error("You cannot follow yourself");
+    }
 
     //Check udh difollow belum
     const followCollection = this.getFollowCollection();
@@ -106,10 +109,65 @@ export default class User {
 
     const result = await followCollection.insertOne(followData);
 
-    return {
-      message: `User ${follower.name}Successfully followed user ${following.name}`,
-      _id: result.insertedId,
-      ...followData,
-    };
+    return `User ${follower.name} Successfully followed user ${following.name}`;
+  }
+
+  //GET USER
+  static async getUserById(id) {
+    const collection = this.getCollection();
+    const userId = new ObjectId(id);
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+
+    const user = await collection
+      .aggregate(
+        [
+          {
+            $match: {
+              _id: userId,
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followingId",
+              as: "followers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followers.followerId",
+              foreignField: "_id",
+              as: "followerData",
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followerId",
+              as: "followings",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followings.followingId",
+              foreignField: "_id",
+              as: "followingData",
+            },
+          },
+          { $project: { followers: 0, followings: 0 } },
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      )
+      .toArray();
+    console.log(user, `dari model`);
+
+    return user[0];
   }
 }

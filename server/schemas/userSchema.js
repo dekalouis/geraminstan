@@ -13,6 +13,9 @@ type User {
  username: String!
  email: String!
  password: String!
+ followerData: [User]
+ followingData: [User]
+
 }
 
 type Follow {
@@ -40,16 +43,12 @@ type Query {
     users: [User]
     login(payload: LoginInput): String
     searchUsers(searchTerm: String!): [User]
-
-
-
+    getUserById(id: ID!): User
   }
 
 type Mutation {
     register(payload: RegisterInput): String
-    followUser(followerId: ID!, followingId: ID!): Follow
-
-
+    followUser(followerId: ID!, followingId: ID!): String
   }
 
  `;
@@ -68,6 +67,10 @@ export const resolvers = {
     },
     searchUsers: async function (_, { searchTerm }) {
       return await User.searchUsers(searchTerm);
+    },
+    getUserById: async function (_, args) {
+      const { id } = args;
+      return await User.getUserById(id);
     },
   },
 
