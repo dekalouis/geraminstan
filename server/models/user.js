@@ -83,6 +83,9 @@ export default class User {
 
     if (!follower) throw new Error("Follower user not found");
     if (!following) throw new Error("User to follow not found");
+    if (follower._id.toString() === following._id.toString()) {
+      throw new Error("You cannot follow yourself");
+    }
 
     //Check udh difollow belum
     const followCollection = this.getFollowCollection();
@@ -106,64 +109,65 @@ export default class User {
 
     const result = await followCollection.insertOne(followData);
 
-    return {
-      message: `User ${follower.name}Successfully followed user ${following.name}`,
-      _id: result.insertedId,
-      ...followData,
-    };
+    return `User ${follower.name} Successfully followed user ${following.name}`;
   }
 
-  //! static async unfollowUser(followerId, followingId) {
-  //   const followCollection = this.getFollowCollection();
+  //GET USER
+  static async getUserById(id) {
+    const collection = this.getCollection();
+    const userId = new ObjectId(id);
 
-  //   const followerObjId = new ObjectId(followerId);
-  //   const followingObjId = new ObjectId(followingId);
+    if (!userId) {
+      throw new Error("User not found");
+    }
 
-  //   const result = await followCollection.deleteOne({
-  //     followerId: followerObjId,
-  //     followingId: followingObjId,
-  //   });
-
-  //   return result.deletedCount > 0;
-  // }
-
-  static async getFollowers(userId) {
-    const followCollection = this.getFollowCollection();
-    const userCollection = this.getCollection();
-
-    const follows = await followCollection
-      .find({
-        followingId: new ObjectId(userId),
-      })
+    const user = await collection
+      .aggregate(
+        [
+          {
+            $match: {
+              _id: userId,
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followingId",
+              as: "followers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followers.followerId",
+              foreignField: "_id",
+              as: "followerData",
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followerId",
+              as: "followings",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followings.followingId",
+              foreignField: "_id",
+              as: "followingData",
+            },
+          },
+          { $project: { followers: 0, followings: 0 } },
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      )
       .toArray();
+    console.log(user, `dari model`);
 
-    const followerIds = follows.map((follow) => follow.followerId);
-    const followers = await userCollection
-      .find({
-        _id: { $in: followerIds },
-      })
-      .toArray();
-
-    return followers;
-  }
-
-  static async getFollowing(userId) {
-    const followCollection = this.getFollowCollection();
-    const userCollection = this.getCollection();
-
-    const follows = await followCollection
-      .find({
-        followerId: new ObjectId(userId),
-      })
-      .toArray();
-
-    const followingIds = follows.map((follow) => follow.followingId);
-    const following = await userCollection
-      .find({
-        _id: { $in: followingIds },
-      })
-      .toArray();
-
-    return following;
+    return user[0];
   }
 }
