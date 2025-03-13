@@ -83,48 +83,6 @@ export default class User {
     return users;
   }
 
-  static async followUser(followerId, followingId) {
-    const userCollection = this.getCollection();
-
-    //check ada ga
-    const follower = await userCollection.findOne({
-      _id: new ObjectId(followerId),
-    });
-    const following = await userCollection.findOne({
-      _id: new ObjectId(followingId),
-    });
-
-    if (!follower) throw new Error("Follower user not found");
-    if (!following) throw new Error("User to follow not found");
-    if (follower._id.toString() === following._id.toString()) {
-      throw new Error("You cannot follow yourself");
-    }
-
-    //Check udh difollow belum
-    const followCollection = this.getFollowCollection();
-    const existingFollow = await followCollection.findOne({
-      followerId: follower._id,
-      followingId: following._id,
-    });
-    //CHECK DULU
-    // console.log(existingFollow);
-
-    if (existingFollow) {
-      throw new Error("Already following this user");
-    }
-
-    const followData = {
-      followerId: follower._id,
-      followingId: following._id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await followCollection.insertOne(followData);
-
-    return `User ${follower.name} Successfully followed user ${following.name}`;
-  }
-
   //GET USER
   static async getUserById(id) {
     const collection = this.getCollection();
@@ -189,5 +147,78 @@ export default class User {
     // console.log(user, `dari model`);
 
     return user[0];
+  }
+
+  static async followUser(followerId, followingId) {
+    const userCollection = this.getCollection();
+
+    //check ada ga
+    const follower = await userCollection.findOne({
+      _id: new ObjectId(followerId),
+    });
+    const following = await userCollection.findOne({
+      _id: new ObjectId(followingId),
+    });
+
+    if (!follower) throw new Error("Follower user not found");
+    if (!following) throw new Error("User to follow not found");
+    if (follower._id.toString() === following._id.toString()) {
+      throw new Error("You cannot follow yourself");
+    }
+
+    //Check udh difollow belum
+    const followCollection = this.getFollowCollection();
+    const existingFollow = await followCollection.findOne({
+      followerId: follower._id,
+      followingId: following._id,
+    });
+    //CHECK DULU
+    // console.log(existingFollow);
+
+    if (existingFollow) {
+      throw new Error("Already following this user");
+    }
+
+    const followData = {
+      followerId: follower._id,
+      followingId: following._id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await followCollection.insertOne(followData);
+
+    return `User ${follower.name} Successfully followed user ${following.name}`;
+  }
+
+  static async unfollowUser(followerId, followingId) {
+    const userCollection = this.getCollection();
+
+    const follower = await userCollection.findOne({
+      _id: new ObjectId(followerId),
+    });
+    const following = await userCollection.findOne({
+      _id: new ObjectId(followingId),
+    });
+
+    if (!follower) throw new Error("Follower user not found");
+    if (!following) throw new Error("User to unfollow not found");
+
+    const followCollection = this.getFollowCollection();
+    const existingFollow = await followCollection.findOne({
+      followerId: follower._id,
+      followingId: following._id,
+    });
+
+    if (!existingFollow) {
+      throw new Error("You are not following this user");
+    }
+
+    await followCollection.deleteOne({
+      followerId: follower._id,
+      followingId: following._id,
+    });
+
+    return `User ${follower.name} successfully unfollowed user ${following.name}`;
   }
 }

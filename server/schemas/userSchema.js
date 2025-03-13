@@ -49,6 +49,8 @@ type Query {
 type Mutation {
     register(payload: RegisterInput): String
     followUser(followingId: ID!): String
+    unfollowUser(followingId: ID!): String
+
   }
 
  `;
@@ -93,6 +95,10 @@ export const resolvers = {
     followUser: async function (_, { followingId }, { authN }) {
       const user = await authN();
       return await User.followUser(user._id, followingId);
+    },
+    unfollowUser: async function (_, { followingId }, { authN }) {
+      const user = await authN();
+      return await User.unfollowUser(user._id, followingId);
     },
   },
 };
