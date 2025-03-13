@@ -63,23 +63,6 @@ export default class Post {
         {
           $unwind: "$author",
         },
-        {
-          //gaperlu gini bang
-          $project: {
-            _id: 1,
-            content: 1,
-            tags: 1,
-            imgUrl: 1,
-            authorId: 1,
-            comments: 1,
-            likes: 1,
-            createdAt: 1,
-            updatedAt: 1,
-            "author.name": 1,
-            "author.username": 1,
-            "author._id": 1,
-          },
-        },
       ])
       .toArray();
 
@@ -183,7 +166,7 @@ export default class Post {
         }
       );
 
-      return { message: "Post unliked successfully" };
+      return "Post unliked successfully";
     } else {
       //Belum dilike, di like
       const like = {

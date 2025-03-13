@@ -43,18 +43,20 @@ type Query {
     login(payload: LoginInput): String
     searchUsers(searchTerm: String!): [User]
     getUserById(id: ID!): User
+
   }
 
 type Mutation {
     register(payload: RegisterInput): String
-    followUser(followerId: ID!, followingId: ID!): String
+    followUser(followingId: ID!): String
   }
 
  `;
 
 export const resolvers = {
   Query: {
-    users: async function () {
+    users: async function (_, __, { authN }) {
+      const user = await authN();
       const users = await User.findAll();
       return users;
     },
@@ -64,13 +66,21 @@ export const resolvers = {
 
       return token;
     },
-    searchUsers: async function (_, { searchTerm }) {
+
+    searchUsers: async function (_, { searchTerm }, { authN }) {
+      const user = await authN();
       return await User.searchUsers(searchTerm);
     },
-    getUserById: async function (_, args) {
+    getUserById: async function (_, args, { authN }) {
       const { id } = args;
+      const user = await authN();
       return await User.getUserById(id);
     },
+
+    // getMyProfile: async function (_, __, { authN }) {
+    //   const user = await authN();
+    //   return user;
+    // },
   },
 
   Mutation: {
@@ -80,8 +90,9 @@ export const resolvers = {
 
       return message;
     },
-    followUser: async function (_, { followerId, followingId }) {
-      return await User.followUser(followerId, followingId);
+    followUser: async function (_, { followingId }, { authN }) {
+      const user = await authN();
+      return await User.followUser(user._id, followingId);
     },
   },
 };
