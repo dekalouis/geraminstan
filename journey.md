@@ -58,8 +58,8 @@ Buatlah lookup/relasi pada method/fungsi yang berhubungan dengan MongoDB yang su
 
 Implementasikan cache pada aplikasi GraphQL server yang sudah dibuat dengan detail sebagai berikut:
 
-- [ ] Implementasikan cache pada Get Post (Query)
-- [ ] Invalidate cache pada Add Post (Mutation)
+- [x] Implementasikan cache pada Get Post (Query)
+- [x] Invalidate cache pada Add Post (Mutation)
 
 ## Day 3
 
