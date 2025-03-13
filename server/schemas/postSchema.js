@@ -106,7 +106,7 @@ export const resolvers = {
 
     likePost: async function (_, { postId }, { authN }) {
       const user = await authN();
-      return await Post.likePost(postId, user._id);
+      return await Post.likePost(postId, user.username);
     },
   },
 };

@@ -137,14 +137,14 @@ export default class Post {
     return comment;
   }
 
-  //TODO LIKE BY USERNAME BUKAN ID
-  static async likePost(postId, userId) {
+  //TODO LIKE BY USERNAME BUKAN ID LUPA
+  static async likePost(postId, username) {
     const collection = this.getCollection();
 
     //cek udh dilike belum
     const post = await collection.findOne({
       _id: new ObjectId(postId),
-      "likes.userId": new ObjectId(userId),
+      "likes.username": username,
     });
 
     if (post) {
@@ -152,7 +152,7 @@ export default class Post {
       const result = await collection.updateOne(
         { _id: new ObjectId(postId) },
         {
-          $pull: { likes: { userId: new ObjectId(userId) } },
+          $pull: { likes: { username: username } },
           $set: { updatedAt: new Date() },
         }
       );
@@ -161,7 +161,7 @@ export default class Post {
     } else {
       //Belum dilike, di like
       const like = {
-        userId: new ObjectId(userId),
+        username: username,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

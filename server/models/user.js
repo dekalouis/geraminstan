@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { getDb } from "../config/mongodb.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import * as EmailValidator from "email-validator";
 
 export default class User {
   static getCollection() {
@@ -49,6 +50,8 @@ export default class User {
     if (!name || !email || !password || !username) {
       throw new Error("All fields are required");
     }
+    const isEmail = EmailValidator.validate(email);
+    if (!isEmail) throw new Error("Invalid email format");
 
     const salt = bcrypt.genSaltSync(10);
     const hashedPass = bcrypt.hashSync(password, salt);
