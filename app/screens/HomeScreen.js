@@ -1,40 +1,61 @@
 import React from "react";
-import { View, Text, StyleSheet, Button, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 
 const HomeScreen = ({ navigation }) => {
-  // Single dummy post
-  const post = {
-    author: "Udinismus",
-    username: "udingans",
-    content: "POKOKNYA KUCHINGGG!",
-    imageUrl: "https://placecats.com/neo_2/300/300",
-    comments: 2,
-    likes: 10,
-  };
+  // Dummy posts with IDs
+  const posts = [
+    {
+      id: "1",
+      author: "Udinismus",
+      username: "udingans",
+      content: "POKOKNYA KUCHINGGG!",
+      imageUrl: "https://placecats.com/neo_2/300/300",
+      comments: 2,
+      likes: 10,
+    },
+    {
+      id: "2",
+      author: "Udinismus",
+      username: "udingans",
+      content: "Kucing lucu banget!",
+      imageUrl: "https://placecats.com/bella/300/200",
+      comments: 5,
+      likes: 15,
+    },
+  ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.post}>
-        <Text style={styles.author}>
-          {post.author} (@{post.username})
-        </Text>
-        <Image
-          source={{ uri: post.imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+    <ScrollView style={styles.container}>
+      {posts.map((post) => (
+        <TouchableOpacity
+          key={post.id}
+          style={styles.post}
+          onPress={() => navigation.navigate("PostDetail", { postId: post.id })}
+        >
+          <Text style={styles.author}>
+            {post.author} (@{post.username})
+          </Text>
+          <Image
+            source={{ uri: post.imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+          />
 
-        <Text style={styles.content}>{post.content}</Text>
-        <Text style={styles.stats}>
-          Likes: {post.likes} | Comments: {post.comments}
-        </Text>
-      </View>
-
-      <Button
-        title="Go to Profile"
-        onPress={() => navigation.navigate("Profile")}
-      />
-    </View>
+          <Text style={styles.content}>{post.content}</Text>
+          <Text style={styles.stats}>
+            Likes: {post.likes} | Comments: {post.comments}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 };
 

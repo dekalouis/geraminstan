@@ -27,7 +27,14 @@ export default class Post {
 
     const { content, authorId, tags = [], imgUrl = "" } = postData;
 
-    //TODO VALIDATIONNYA JANGAN LUPA
+    //? VALIDATIONNYA sudah
+    if (!content) {
+      throw new Error("Content is required");
+    }
+    if (!imgUrl) {
+      throw new Error("Image URL is required");
+    }
+
     const newPost = {
       content,
       tags,
@@ -87,22 +94,6 @@ export default class Post {
         },
         {
           $unwind: "$author",
-        },
-        {
-          $project: {
-            _id: 1,
-            content: 1,
-            tags: 1,
-            imgUrl: 1,
-            authorId: 1,
-            comments: 1,
-            likes: 1,
-            createdAt: 1,
-            updatedAt: 1,
-            "author.name": 1,
-            "author.username": 1,
-            "author._id": 1,
-          },
         },
       ])
       .toArray();

@@ -7,6 +7,9 @@ import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import CreatePostScreen from "./screens/CreatePostScreen";
+import PostDetailScreen from "./screens/PostDetailScreen";
+import SearchScreen from "./screens/SearchScreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -15,6 +18,8 @@ function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Create Post" component={CreatePostScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -31,6 +36,7 @@ function App() {
           component={TabNavigator}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="PostDetail" component={PostDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
