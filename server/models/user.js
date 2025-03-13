@@ -22,6 +22,12 @@ export default class User {
     return users;
   }
 
+  static async findById(id) {
+    const collection = this.getCollection();
+    const user = await collection.findOne({ _id: new ObjectId(id) });
+    return user;
+  }
+
   static async login(payload) {
     const { email, password } = payload;
     const collection = this.getCollection();
