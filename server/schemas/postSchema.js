@@ -19,7 +19,7 @@ type Author {
   }
 
   type Like {
-    userId: ID!
+    username: String
     createdAt: String
     updatedAt: String
   }
