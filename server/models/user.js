@@ -69,21 +69,89 @@ export default class User {
     return "Successfully registered!";
   }
 
+  // static async searchUsers(searchTerm) {
+  //   if (!searchTerm || searchTerm.trim() === "") {
+  //     return [];
+  //   }
+
+  //   const collection = this.getCollection();
+
+  //   const pattern = new RegExp(searchTerm, "i");
+  //   const users = await collection
+  //     .find({
+  //       $or: [{ name: pattern }, { username: pattern }],
+  //     })
+  //     .toArray();
+
+  //   return users;
+  // }
   static async searchUsers(searchTerm) {
     if (!searchTerm || searchTerm.trim() === "") {
       return [];
     }
 
     const collection = this.getCollection();
-
     const pattern = new RegExp(searchTerm, "i");
-    const users = await collection
+
+    const matchingUsers = await collection
       .find({
         $or: [{ name: pattern }, { username: pattern }],
       })
       .toArray();
 
-    return users;
+    if (matchingUsers.length === 0) {
+      return [];
+    }
+
+    const userIds = matchingUsers.map((user) => user._id);
+
+    const user = await collection
+      .aggregate(
+        [
+          {
+            $match: {
+              _id: { $in: userIds },
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followingId",
+              as: "followers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followers.followerId",
+              foreignField: "_id",
+              as: "followerData",
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followerId",
+              as: "followings",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followings.followingId",
+              foreignField: "_id",
+              as: "followingData",
+            },
+          },
+          { $project: { followers: 0, followings: 0 } },
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      )
+      .toArray();
+
+    return user;
   }
 
   //GET USER
@@ -148,6 +216,8 @@ export default class User {
               from: "posts",
               localField: "_id",
               foreignField: "authorId",
+              pipeline: [{ $sort: { createdAt: -1 } }],
+
               as: "posts",
             },
           },

@@ -22,6 +22,7 @@ import jwt from "jsonwebtoken";
 const server = new ApolloServer({
   typeDefs: [userTypeDefs, postTypeDefs],
   resolvers: [userResolvers, postResolvers],
+  introspection: true,
 });
 
 const { url } = await startStandaloneServer(server, {

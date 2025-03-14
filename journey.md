@@ -82,7 +82,7 @@ Pada aplikasi ini kamu perlu membuat screen sebagai berikut:
 
 ### React Navigation
 
-- [ ] Implementasikan navigasi pada screen yang sudah kamu buat dengan menggunakan React Navigation.
+- [x] Implementasikan navigasi pada screen yang sudah kamu buat dengan menggunakan React Navigation.
 
 ## Day 4
 
