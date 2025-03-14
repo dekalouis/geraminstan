@@ -3,58 +3,100 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   Image,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
+import { useQuery } from "@apollo/client";
+import { GET_POSTS } from "../graphql/operations";
+import { formatDistanceToNow } from "date-fns";
 
 const HomeScreen = ({ navigation }) => {
-  // Dummy posts with IDs
-  const posts = [
-    {
-      id: "1",
-      author: "Udinismus",
-      username: "udingans",
-      content: "POKOKNYA KUCHINGGG!",
-      imageUrl: "https://placecats.com/neo_2/300/300",
-      comments: 2,
-      likes: 10,
-    },
-    {
-      id: "2",
-      author: "Udinismus",
-      username: "udingans",
-      content: "Kucing lucu banget!",
-      imageUrl: "https://placecats.com/bella/300/200",
-      comments: 5,
-      likes: 15,
-    },
-  ];
+  const { loading, error, data, refetch } = useQuery(GET_POSTS, {
+    fetchPolicy: "network-only",
+  });
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>
+          Error loading posts: {error.message}
+        </Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const posts = data?.posts || [];
+
+  const formatDate = (dateString) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (e) {
+      return dateString;
+    }
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      {posts.map((post) => (
-        <TouchableOpacity
-          key={post.id}
-          style={styles.post}
-          onPress={() => navigation.navigate("PostDetail", { postId: post.id })}
-        >
-          <Text style={styles.author}>
-            {post.author} (@{post.username})
-          </Text>
-          <Image
-            source={{ uri: post.imageUrl }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      {posts.length === 0 ? (
+        <Text style={styles.noPosts}>
+          No posts yet. Follow some users to see their posts!
+        </Text>
+      ) : (
+        posts.map((post) => (
+          <TouchableOpacity
+            key={post._id}
+            style={styles.post}
+            onPress={() =>
+              navigation.navigate("PostDetail", { postId: post._id })
+            }
+          >
+            <Text style={styles.author}>
+              {post.author.name} (@{post.author.username})
+            </Text>
+            <Image
+              source={{ uri: post.imgUrl }}
+              style={styles.image}
+              resizeMode="cover"
+            />
 
-          <Text style={styles.content}>{post.content}</Text>
-          <Text style={styles.stats}>
-            Likes: {post.likes} | Comments: {post.comments}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text style={styles.content}>{post.content}</Text>
+            <View style={styles.postFooter}>
+              <Text style={styles.timestamp}>{formatDate(post.createdAt)}</Text>
+              <Text style={styles.stats}>
+                Likes: {post.likes?.length || 0} | Comments:{" "}
+                {post.comments?.length || 0}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -64,28 +106,68 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
   post: {
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: 10,
-    marginBottom: 10,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 8,
+    backgroundColor: "#fff",
   },
   author: {
     fontWeight: "bold",
     marginBottom: 10,
+    fontSize: 16,
   },
   image: {
     width: "100%",
     height: 300,
-    borderRadius: 4,
+    borderRadius: 8,
     marginBottom: 10,
   },
   content: {
-    marginBottom: 5,
+    marginBottom: 10,
+    fontSize: 16,
+  },
+  postFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  timestamp: {
+    color: "#666",
+    fontSize: 12,
   },
   stats: {
     color: "#666",
     fontSize: 12,
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: "#4a80f5",
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  noPosts: {
+    textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
+    color: "#666",
   },
 });
 

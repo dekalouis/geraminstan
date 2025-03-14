@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,19 +11,47 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-import { useQuery } from "@apollo/client";
-import { GET_USER_BY_ID } from "../graphql/operations";
+import { useQuery, useMutation } from "@apollo/client";
+import {
+  GET_USER_BY_ID,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
+} from "../graphql/operations";
 import { AuthContext } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 
-const ProfileScreen = ({ navigation }) => {
-  const { userId, logout } = useContext(AuthContext);
+const UserProfileScreen = ({ navigation, route }) => {
+  const { userId: viewingUserId } = route.params;
+  const { userId: loggedInUserId } = useContext(AuthContext);
+
   const [refreshing, setRefreshing] = React.useState(false);
 
   const { loading, error, data, refetch } = useQuery(GET_USER_BY_ID, {
-    variables: { id: userId },
-    fetchPolicy: "no-cache",
+    variables: { id: viewingUserId },
+    fetchPolicy: "network-only",
   });
+
+  //MUTASI follow/unfollow
+  const [followUser, { loading: followLoading }] = useMutation(FOLLOW_USER, {
+    onCompleted: () => {
+      refetch();
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message || "Failed to follow user");
+    },
+  });
+
+  const [unfollowUser, { loading: unfollowLoading }] = useMutation(
+    UNFOLLOW_USER,
+    {
+      onCompleted: () => {
+        refetch();
+      },
+      onError: (error) => {
+        Alert.alert("Error", error.message || "Failed to unfollow user");
+      },
+    }
+  );
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -31,19 +59,29 @@ const ProfileScreen = ({ navigation }) => {
     setRefreshing(false);
   }, [refetch]);
 
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: () => logout(),
-      },
-    ]);
+  //set titlenya  ke nama user JANGAN LUPA useeeffect HARUS DIATAS at the top level
+  useEffect(() => {
+    if (data?.getUserById) {
+      navigation.setOptions({
+        title: data.getUserById.name || `@${data.getUserById.username}`,
+      });
+    }
+  }, [data, navigation]);
+
+  //? CHECK YANG LG LOGIN FOLLOW GA SUER INI
+  const isFollowing = data?.getUserById?.followerData?.some(
+    (follower) => follower._id === loggedInUserId
+  );
+
+  const handleFollowToggle = () => {
+    if (isFollowing) {
+      unfollowUser({ variables: { followingId: viewingUserId } });
+    } else {
+      followUser({ variables: { followingId: viewingUserId } });
+    }
   };
 
+  //BIAR POSTNYA BENER ORDERANNYA
   const windowWidth = Dimensions.get("window").width;
   const numColumns = 3;
   const spacing = 4;
@@ -109,7 +147,6 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.profileInfo}>
           <Text style={styles.name}>{user.name}</Text>
           <Text style={styles.username}>@{user.username}</Text>
-          <Text style={styles.email}>{user.email}</Text>
 
           <View style={styles.stats}>
             <View style={styles.statItem}>
@@ -132,6 +169,24 @@ const ProfileScreen = ({ navigation }) => {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={[
+          styles.followToggleButton,
+          isFollowing ? styles.unfollowButton : styles.followButton,
+          (followLoading || unfollowLoading) && styles.disabledButton,
+        ]}
+        onPress={handleFollowToggle}
+        disabled={followLoading || unfollowLoading}
+      >
+        {followLoading || unfollowLoading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.followToggleText}>
+            {isFollowing ? "Unfollow" : "Follow"}
+          </Text>
+        )}
+      </TouchableOpacity>
+
       <View style={styles.postsContainer}>
         <Text style={styles.postsTitle}>Posts</Text>
 
@@ -139,14 +194,6 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.noPosts}>
             <Ionicons name="images-outline" size={50} color="#ccc" />
             <Text style={styles.noPostsText}>No posts yet</Text>
-            <TouchableOpacity
-              style={styles.createPostButton}
-              onPress={() => navigation.navigate("CreatePost")}
-            >
-              <Text style={styles.createPostButtonText}>
-                Create your first post
-              </Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <FlatList
@@ -161,11 +208,6 @@ const ProfileScreen = ({ navigation }) => {
           />
         )}
       </View>
-
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={20} color="white" />
-        <Text style={styles.logoutButtonText}>Log Out</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -213,11 +255,6 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 3,
   },
-  email: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 10,
-  },
   stats: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -233,6 +270,27 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     color: "#666",
+  },
+  followToggleButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  followButton: {
+    backgroundColor: "#4a80f5",
+  },
+  unfollowButton: {
+    backgroundColor: "#f44336",
+  },
+  disabledButton: {
+    backgroundColor: "#cccccc",
+  },
+  followToggleText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   postsContainer: {
     flex: 1,
@@ -255,19 +313,6 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 4,
   },
-  logoutButton: {
-    backgroundColor: "#f44336",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 5,
-  },
-  logoutButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    marginLeft: 5,
-  },
   noPosts: {
     flex: 1,
     justifyContent: "center",
@@ -278,15 +323,6 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 10,
     marginBottom: 20,
-  },
-  createPostButton: {
-    backgroundColor: "#4a80f5",
-    padding: 12,
-    borderRadius: 5,
-  },
-  createPostButtonText: {
-    color: "white",
-    fontWeight: "bold",
   },
   errorText: {
     color: "red",
@@ -304,4 +340,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default UserProfileScreen;
