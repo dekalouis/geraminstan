@@ -143,6 +143,14 @@ export default class User {
               "followingData.password": 0,
             },
           },
+          {
+            $lookup: {
+              from: "posts",
+              localField: "_id",
+              foreignField: "authorId",
+              as: "posts",
+            },
+          },
         ],
         { maxTimeMS: 60000, allowDiskUse: true }
       )

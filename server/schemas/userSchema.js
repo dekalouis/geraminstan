@@ -15,7 +15,7 @@ type User {
  password: String!
  followerData: [User]
  followingData: [User]
-
+ posts: [Post]
 }
 
 type Follow {
