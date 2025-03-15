@@ -13,6 +13,7 @@ import { SEARCH_USERS } from "../graphql/operations";
 import { AuthContext } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { COLORS, FONTS, SHADOWS } from "../constants/theme";
 
 const SearchScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,30 +108,46 @@ const SearchScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Find People</Text>
+      <View style={styles.headerContainer}>
+        <Ionicons name="people" size={24} color={COLORS.accent} />
+        <Text style={styles.title}>Find People</Text>
+      </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by name or username"
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          onSubmitEditing={handleSearch}
-          returnKeyType="search"
-        />
-        {searchTerm ? (
-          <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
-            <Ionicons name="close-circle" size={20} color="#666" />
-          </TouchableOpacity>
-        ) : null}
+        <View style={styles.searchInputContainer}>
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color={COLORS.textLight}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name or username"
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+            placeholderTextColor={COLORS.textLight}
+          />
+          {searchTerm ? (
+            <TouchableOpacity style={styles.clearButton} onPress={clearSearch}>
+              <Ionicons
+                name="close-circle"
+                size={20}
+                color={COLORS.textLight}
+              />
+            </TouchableOpacity>
+          ) : null}
+        </View>
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-          <Ionicons name="search" size={24} color="white" />
+          <Ionicons name="search" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error ? (
         <View style={styles.centerContainer}>
@@ -140,7 +157,11 @@ const SearchScreen = ({ navigation }) => {
         <>
           {hasSearched && users.length === 0 ? (
             <View style={styles.noResults}>
-              <Ionicons name="people-outline" size={50} color="#ccc" />
+              <Ionicons
+                name="people-outline"
+                size={50}
+                color={COLORS.primaryTransparent}
+              />
               <Text style={styles.noResultsText}>No users found</Text>
             </View>
           ) : (
@@ -161,6 +182,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.background,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   centerContainer: {
     flex: 1,
@@ -168,37 +196,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: FONTS.sizes.xl,
+    marginLeft: 10,
     textAlign: "center",
     fontWeight: "bold",
+    color: COLORS.accent,
   },
   searchContainer: {
     flexDirection: "row",
     marginBottom: 20,
     alignItems: "center",
   },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    marginRight: 10,
+    ...SHADOWS.small,
+  },
+  searchIcon: {
+    marginRight: 5,
+  },
   searchInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
     padding: 12,
-    marginRight: 10,
-    borderRadius: 5,
+    color: COLORS.text,
+    fontSize: FONTS.sizes.md,
   },
   clearButton: {
-    position: "absolute",
-    right: 60,
-    zIndex: 1,
+    paddingHorizontal: 5,
   },
   searchButton: {
-    backgroundColor: "#4a80f5",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: COLORS.primary,
+    padding: 12,
+    borderRadius: 12,
     justifyContent: "center",
+    alignItems: "center",
+    ...SHADOWS.small,
   },
   listContainer: {
     flexGrow: 1,
+    paddingBottom: 10,
   },
   noResults: {
     flex: 1,
@@ -206,20 +249,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   noResultsText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#666",
+    marginTop: 15,
+    fontSize: FONTS.sizes.md,
+    color: COLORS.textLight,
   },
   userItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: COLORS.border,
     padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
-    backgroundColor: "#fff",
+    marginBottom: 15,
+    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    ...SHADOWS.small,
   },
   userInfo: {
     flexDirection: "row",
@@ -229,36 +273,39 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
   },
   profileInitial: {
-    fontSize: 24,
-    color: "white",
+    fontSize: FONTS.sizes.lg,
+    color: COLORS.white,
     fontWeight: "bold",
   },
   userTextInfo: {
     marginLeft: 15,
     justifyContent: "center",
+    flex: 1,
   },
   userName: {
-    fontSize: 16,
+    fontSize: FONTS.sizes.md,
     fontWeight: "bold",
+    color: COLORS.text,
   },
   userUsername: {
-    color: "#666",
+    color: COLORS.textLight,
     marginBottom: 5,
+    fontSize: FONTS.sizes.sm,
   },
   userStats: {
     flexDirection: "row",
   },
   userNums: {
-    fontSize: 12,
-    color: "#666",
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.textLight,
   },
   errorText: {
-    color: "red",
+    color: COLORS.error,
     textAlign: "center",
   },
 });

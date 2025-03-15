@@ -19,6 +19,7 @@ import {
 } from "../graphql/operations";
 import { AuthContext } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import { COLORS, FONTS, SHADOWS } from "../constants/theme";
 
 const UserProfileScreen = ({ navigation, route }) => {
   const { userId: viewingUserId } = route.params;
@@ -107,7 +108,7 @@ const UserProfileScreen = ({ navigation, route }) => {
   if (loading && !refreshing) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -137,62 +138,76 @@ const UserProfileScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.profileCircle}>
-          <Text style={styles.profileInitial}>
-            {user.name?.charAt(0) || user.username?.charAt(0)}
-          </Text>
-        </View>
+      <View style={styles.profileCard}>
+        <View style={styles.header}>
+          <View style={styles.profileCircle}>
+            <Text style={styles.profileInitial}>
+              {user.name?.charAt(0) || user.username?.charAt(0)}
+            </Text>
+          </View>
 
-        <View style={styles.profileInfo}>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.username}>@{user.username}</Text>
+          <View style={styles.profileInfo}>
+            <Text style={styles.name}>{user.name}</Text>
+            <Text style={styles.username}>@{user.username}</Text>
 
-          <View style={styles.stats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{user.posts?.length || 0}</Text>
-              <Text style={styles.statLabel}>Posts</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {user.followerData?.length || 0}
-              </Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {user.followingData?.length || 0}
-              </Text>
-              <Text style={styles.statLabel}>Following</Text>
+            <View style={styles.stats}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{user.posts?.length || 0}</Text>
+                <Text style={styles.statLabel}>Posts</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>
+                  {user.followerData?.length || 0}
+                </Text>
+                <Text style={styles.statLabel}>Followers</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>
+                  {user.followingData?.length || 0}
+                </Text>
+                <Text style={styles.statLabel}>Following</Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      <TouchableOpacity
-        style={[
-          styles.followToggleButton,
-          isFollowing ? styles.unfollowButton : styles.followButton,
-          (followLoading || unfollowLoading) && styles.disabledButton,
-        ]}
-        onPress={handleFollowToggle}
-        disabled={followLoading || unfollowLoading}
-      >
-        {followLoading || unfollowLoading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text style={styles.followToggleText}>
-            {isFollowing ? "Unfollow" : "Follow"}
-          </Text>
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.followToggleButton,
+            isFollowing ? styles.unfollowButton : styles.followButton,
+            (followLoading || unfollowLoading) && styles.disabledButton,
+          ]}
+          onPress={handleFollowToggle}
+          disabled={followLoading || unfollowLoading}
+        >
+          {followLoading || unfollowLoading ? (
+            <ActivityIndicator size="small" color={COLORS.white} />
+          ) : (
+            <>
+              <Ionicons
+                name={isFollowing ? "person-remove" : "person-add"}
+                size={18}
+                color={COLORS.white}
+                style={styles.followIcon}
+              />
+              <Text style={styles.followToggleText}>
+                {isFollowing ? "Unfollow" : "Follow"}
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.postsContainer}>
         <Text style={styles.postsTitle}>Posts</Text>
 
         {user.posts?.length === 0 ? (
           <View style={styles.noPosts}>
-            <Ionicons name="images-outline" size={50} color="#ccc" />
+            <Ionicons
+              name="images-outline"
+              size={50}
+              color={COLORS.primaryTransparent}
+            />
             <Text style={styles.noPostsText}>No posts yet</Text>
           </View>
         ) : (
@@ -203,7 +218,12 @@ const UserProfileScreen = ({ navigation, route }) => {
             numColumns={numColumns}
             columnWrapperStyle={styles.postRow}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[COLORS.primary, COLORS.secondary]}
+                tintColor={COLORS.primary}
+              />
             }
           />
         )}
@@ -216,29 +236,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    backgroundColor: COLORS.background,
+  },
+  profileCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 20,
+    ...SHADOWS.small,
   },
   header: {
     flexDirection: "row",
-    marginBottom: 20,
+    marginBottom: 15,
     alignItems: "center",
   },
   profileCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
   },
   profileInitial: {
     fontSize: 40,
-    color: "white",
+    color: COLORS.white,
     fontWeight: "bold",
   },
   profileInfo: {
@@ -246,13 +275,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 22,
+    fontSize: FONTS.sizes.xl,
     fontWeight: "bold",
     marginBottom: 5,
+    color: COLORS.text,
   },
   username: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: FONTS.sizes.md,
+    color: COLORS.textLight,
     marginBottom: 3,
   },
   stats: {
@@ -262,44 +292,56 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: "center",
+    backgroundColor: COLORS.primaryTransparent,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
   },
   statNumber: {
-    fontSize: 18,
+    fontSize: FONTS.sizes.lg,
     fontWeight: "bold",
+    color: COLORS.accent,
   },
   statLabel: {
-    fontSize: 12,
-    color: "#666",
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.text,
   },
   followToggleButton: {
+    flexDirection: "row",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "center",
+    marginTop: 10,
+    ...SHADOWS.small,
+  },
+  followIcon: {
+    marginRight: 8,
   },
   followButton: {
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
   },
   unfollowButton: {
-    backgroundColor: "#f44336",
+    backgroundColor: COLORS.secondary,
   },
   disabledButton: {
-    backgroundColor: "#cccccc",
+    backgroundColor: COLORS.border,
   },
   followToggleText: {
-    color: "white",
+    color: COLORS.white,
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: FONTS.sizes.md,
   },
   postsContainer: {
     flex: 1,
     marginBottom: 20,
   },
   postsTitle: {
-    fontSize: 18,
+    fontSize: FONTS.sizes.lg,
     fontWeight: "bold",
     marginBottom: 15,
+    color: COLORS.accent,
   },
   postRow: {
     justifyContent: "flex-start",
@@ -307,6 +349,7 @@ const styles = StyleSheet.create({
   },
   postItem: {
     marginBottom: 4,
+    ...SHADOWS.small,
   },
   postImage: {
     width: "100%",
@@ -317,25 +360,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: 50,
   },
   noPostsText: {
-    fontSize: 16,
-    color: "#666",
-    marginTop: 10,
-    marginBottom: 20,
+    fontSize: FONTS.sizes.md,
+    color: COLORS.textLight,
+    marginTop: 15,
   },
   errorText: {
-    color: "red",
+    color: COLORS.error,
     textAlign: "center",
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 12,
   },
   retryButtonText: {
-    color: "white",
+    color: COLORS.white,
     fontWeight: "bold",
   },
 });
