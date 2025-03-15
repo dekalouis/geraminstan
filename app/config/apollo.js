@@ -9,7 +9,7 @@ import { onError } from "@apollo/client/link/error";
 import * as SecureStore from "expo-secure-store";
 
 const httpLink = createHttpLink({
-  uri: "https://807e-118-137-19-20.ngrok-free.app",
+  uri: "https://geraminstanserver.dekalouis.com/",
 });
 
 const authLink = setContext(async (_, { headers }) => {
