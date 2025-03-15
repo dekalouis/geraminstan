@@ -1,5 +1,6 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import {
+  Image,
   View,
   Text,
   TextInput,
@@ -14,6 +15,7 @@ import {
 import { useLazyQuery } from "@apollo/client";
 import { LOGIN } from "../graphql/operations";
 import { AuthContext } from "../context/AuthContext";
+import { COLORS, FONTS } from "../constants/theme";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -47,10 +49,18 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: COLORS.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../assets/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+
         <Text style={styles.title}>Login</Text>
 
         <TextInput
@@ -60,6 +70,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          placeholderTextColor={COLORS.textLight}
         />
 
         <TextInput
@@ -68,12 +79,13 @@ const LoginScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          placeholderTextColor={COLORS.textLight}
         />
 
         {loading ? (
           <ActivityIndicator
             size="large"
-            color="#0000ff"
+            color={COLORS.primary}
             style={styles.loader}
           />
         ) : (
@@ -101,30 +113,41 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  logo: {
+    width: 150,
+    height: 150,
+  },
   title: {
-    fontSize: 26,
+    fontSize: FONTS.sizes.xxxl,
     marginBottom: 30,
     textAlign: "center",
     fontWeight: "bold",
+    color: COLORS.accent,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
     padding: 15,
     marginBottom: 15,
-    borderRadius: 5,
-    fontSize: 16,
+    borderRadius: 12,
+    fontSize: FONTS.sizes.md,
+    color: COLORS.text,
   },
   button: {
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: "white",
-    fontSize: 16,
+    color: COLORS.white,
+    fontSize: FONTS.sizes.md,
     fontWeight: "bold",
   },
   registerButton: {
@@ -132,8 +155,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   registerButtonText: {
-    color: "#4a80f5",
-    fontSize: 16,
+    color: COLORS.secondary,
+    fontSize: FONTS.sizes.md,
   },
   loader: {
     marginTop: 20,

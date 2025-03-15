@@ -14,6 +14,8 @@ import {
 } from "react-native";
 import { useMutation } from "@apollo/client";
 import { ADD_POST, GET_POSTS } from "../graphql/operations";
+import { COLORS, FONTS, SHADOWS } from "../constants/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 const CreatePostScreen = ({ navigation }) => {
   const [content, setContent] = useState("");
@@ -68,11 +70,14 @@ const CreatePostScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: COLORS.background }}
       behavior={Platform.OS === "ios" ? "padding" : null}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Create New Post</Text>
+        <View style={styles.header}>
+          <Ionicons name="add-circle" size={24} color={COLORS.primary} />
+          <Text style={styles.title}>Create New Post</Text>
+        </View>
 
         {imageUrl ? (
           <View style={styles.imagePreviewContainer}>
@@ -85,42 +90,47 @@ const CreatePostScreen = ({ navigation }) => {
           </View>
         ) : null}
 
-        <Text style={styles.label}>Content</Text>
-        <TextInput
-          style={styles.contentInput}
-          placeholder="What's on your mind?"
-          value={content}
-          onChangeText={setContent}
-          multiline
-        />
-
-        <Text style={styles.label}>Image URL</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Image URL"
-          value={imageUrl}
-          onChangeText={setImageUrl}
-        />
-
-        <Text style={styles.label}>Tags (comma separated)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="cats, cute, pets"
-          value={tags}
-          onChangeText={setTags}
-        />
-
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#0000ff"
-            style={styles.loader}
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Content</Text>
+          <TextInput
+            style={styles.contentInput}
+            placeholder="What's on your mind?"
+            value={content}
+            onChangeText={setContent}
+            multiline
+            placeholderTextColor={COLORS.textLight}
           />
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Post GeramInstan!</Text>
-          </TouchableOpacity>
-        )}
+
+          <Text style={styles.label}>Image URL</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Image URL"
+            value={imageUrl}
+            onChangeText={setImageUrl}
+            placeholderTextColor={COLORS.textLight}
+          />
+
+          <Text style={styles.label}>Tags (comma separated)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="cats, cute, pets"
+            value={tags}
+            onChangeText={setTags}
+            placeholderTextColor={COLORS.textLight}
+          />
+
+          {loading ? (
+            <ActivityIndicator
+              size="large"
+              color={COLORS.primary}
+              style={styles.loader}
+            />
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>Post to GeramInstan!</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -131,41 +141,64 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 5,
+  },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: FONTS.sizes.xl,
+    marginLeft: 10,
     textAlign: "center",
     fontWeight: "bold",
+    color: COLORS.accent,
+  },
+  formContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 15,
+    ...SHADOWS.small,
   },
   label: {
-    fontSize: 16,
-    marginBottom: 5,
-    marginTop: 10,
+    fontSize: FONTS.sizes.md,
+    marginBottom: 8,
+    marginTop: 12,
     fontWeight: "500",
+    color: COLORS.text,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: COLORS.border,
     padding: 12,
     marginBottom: 15,
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+    color: COLORS.text,
   },
   contentInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: COLORS.border,
     padding: 12,
     marginBottom: 15,
     height: 120,
     textAlignVertical: "top",
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+    color: COLORS.text,
   },
   imagePreviewContainer: {
     marginVertical: 15,
     alignItems: "center",
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 12,
+    ...SHADOWS.small,
   },
   previewText: {
     marginBottom: 8,
     fontWeight: "bold",
+    color: COLORS.accent,
   },
   imagePreview: {
     width: "100%",
@@ -173,20 +206,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   button: {
-    backgroundColor: "#4a80f5",
+    backgroundColor: COLORS.primary,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 20,
   },
   buttonText: {
-    color: "white",
-    fontSize: 16,
+    color: COLORS.white,
+    fontSize: FONTS.sizes.md,
     fontWeight: "bold",
   },
   loader: {
     marginTop: 20,
   },
 });
-
 export default CreatePostScreen;
