@@ -155,7 +155,7 @@ const SearchStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
-// Authentication Navigator
+//Authentication Navigator
 const AuthStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -165,7 +165,7 @@ const AuthStack = () => {
   );
 };
 
-// Search Stack (within tabs)
+//SEARCH STACK DIDALEM TAB
 const SearchStackScreen = () => {
   return (
     <SearchStack.Navigator>
@@ -176,7 +176,7 @@ const SearchStackScreen = () => {
   );
 };
 
-// Home Stack (within tabs)
+//HOME STACK DIDALEM TAB
 const HomeStackScreen = () => {
   return (
     <HomeStack.Navigator>
@@ -187,7 +187,7 @@ const HomeStackScreen = () => {
   );
 };
 
-// Profile Stack (within tabs)
+//STACK PROFILE DIDALEM TAB
 const ProfileStackScreen = () => {
   return (
     <ProfileStack.Navigator>
@@ -197,7 +197,7 @@ const ProfileStackScreen = () => {
   );
 };
 
-// Main Tab Navigator (when authenticated)
+//MAIN TAB after auth
 const MainTabs = () => {
   return (
     <Tab.Navigator
@@ -211,7 +211,7 @@ const MainTabs = () => {
             iconName = focused ? "person" : "person-outline";
           } else if (route.name === "SearchTab") {
             iconName = focused ? "search" : "search-outline";
-          } else if (route.name === "CreatePost") {
+          } else if (route.name === "Post") {
             iconName = focused ? "add-circle" : "add-circle-outline";
           }
 
@@ -231,7 +231,7 @@ const MainTabs = () => {
         component={SearchStackScreen}
         options={{ headerShown: false, title: "Search" }}
       />
-      <Tab.Screen name="CreatePost" component={CreatePostScreen} />
+      <Tab.Screen name="Post" component={CreatePostScreen} />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackScreen}
