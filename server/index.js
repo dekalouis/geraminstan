@@ -18,11 +18,18 @@ import {
 } from "./schemas/postSchema.js";
 import User from "./models/user.js";
 import jwt from "jsonwebtoken";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
 
 const server = new ApolloServer({
   typeDefs: [userTypeDefs, postTypeDefs],
   resolvers: [userResolvers, postResolvers],
   introspection: true,
+  //BIAR WEBNYA LANGSUNG KE SANDBOX
+  plugins: [
+    ApolloServerPluginLandingPageLocalDefault({
+      embed: true,
+    }),
+  ],
 });
 
 const { url } = await startStandaloneServer(server, {
