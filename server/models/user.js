@@ -57,6 +57,11 @@ export default class User {
     const hashedPass = bcrypt.hashSync(password, salt);
 
     const collection = this.getCollection();
+
+    if (await collection.findOne({ email })) {
+      throw new Error("Email already registered");
+    }
+    
     await collection.insertOne({
       name,
       email,
